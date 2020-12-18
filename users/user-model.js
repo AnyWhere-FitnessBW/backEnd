@@ -1,55 +1,41 @@
-const db = require('../data/dbConfig')
+const db = require('../data/dbConfig');
 
 module.exports = {
+    add,
     find,
     findBy,
     findById,
-    add,
     update,
     remove
 }
 
-async function find() {
-    try {
-        return await db('users');
-    } catch (error) {
-        throw error;
-    }
+ async function add(user) {
+    const [id] = await db('users').insert(user,['*']);
+  
+    return findById(id); 
+  }
+
+function find() {
+    return db('users').select("id","username").orderBy("id")
 }
 
 function findBy(filter) {
-    return db("users as u")
-      .select("u.id", "u.username", "u.password")
-      .where(filter).orderBy("u.id");
+    return db('users').where(filter).orderBy('id')
+}
+
+function findById(id) {
+    return db('users').where('id',id);
+}
+
+function update(id, changes) {
+     return db('users')
+      .where({ id })
+      .update(changes,['*'])
+      ;
   }
   
-  function findById(id) {
-    return db("users").where({ id }).first();
+function remove(id) {
+    return db('users')
+      .where('id', id)
+      .del();
   }
-
-async function add(userData) {
-    try {
-        const ids = await db('users').insert(userData);
-        const newUser = await findById(ids[0]);
-        return newUser;
-    } catch (error) {
-        throw error;
-    }
-}
-
-async function update(id, changes) {
-    try {
-        await db('users').where({ id }).update(changes);
-        return await findById(id);
-    } catch (error) {
-        throw error;
-    }
-}
-
-async function remove(id) {
-    try {
-        return await db('users').del().where({ id });
-    } catch (error) {
-        throw error;
-    }
-}

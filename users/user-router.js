@@ -1,33 +1,38 @@
-const express = require('express');
-const db = require('../data/dbConfig')
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
+const user = require('./user-model')
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcryptjs')
 
-const Users = require('./user-model')
-const restricted = require("../auth/restricted-middleware.js");
-const checkRole = require("../auth/check-role-middlware");
+router.get('/', (req, res) => {
+    let id = req.decodedJwt.userid
+    user.findById(id)
+        .then(success => {
+            res.status(200).json(success)
+        })
+})
 
+router.put('/',(req,res)=> {
+    let id = req.decodedJwt.userid
+    if (req.body.password){
+        let hashed = bcrypt.hashSync(req.body.password,10)
+        let newPassword = {'password': hashed}
+        user.update(id, newPassword)
+            .then(success => {res.status(200).json(success)})
+            .catch(err => res.status(500).json({error: err.message}))
+    }
+    else{
+        user.update(id, req.body)
+        .then(success => res.status(200).json(success[0]))
+        .catch(err => res.status(500).json({error: err.message}))
+    }
+})
 
-router.get("/", restricted, async (req, res, next) => {
-  try {
-    const users = await Users.find();
-    res.status(200).json(users);
-  } catch (err) {
-    res.status(404)
-    next({ apiCode: 501, apiMessage: 'db error getting users', ...err })
-  }
-});
+router.delete('/', (req,res) => {
+    let id = req.decodedJwt.userid
+    user.remove(id)
+        .then(success => res.status(200).json({message: "user deleted"}))
+        .catch(err => res.status(500).json({error: err.message}))
+})
 
-router.get("/", (req, res) => {
-    db("users")
-      .then(users => {
-        res.json(users);
-      })
-      .catch(err => {
-        res.status(500).json({ message: "Failed to get users" });
-      });
-  });
-
-
-
-
-module.exports = router;
+module.exports = router
