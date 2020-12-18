@@ -38,7 +38,6 @@ router.post("/login", async (req, res, next) => {
   const { username, password } = req.body;
 
   try {
-
     if (!isValid(req.body)) {
       next({ apiCode: 400, apiMessage: 'username or password missing, or password not alphanumeric' });
     } else {
@@ -65,7 +64,6 @@ function generateToken(user) {
     subject: user.id,
     username: user.username,
 
-    rolename: user.rolename
   };
 
   
