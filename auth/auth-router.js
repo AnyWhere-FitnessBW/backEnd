@@ -13,8 +13,7 @@ router.post("/register", async (req, res, next) => {
 
   try {
     if (isValid(credentials)) {
-      // const rounds = process.env.BCRYPT_ROUNDS ?
-      //   parseInt(process.env.BCRYPT_ROUNDS) : 8;
+    
 
       const rounds = process.env.BCRYPT_ROUNDS;
 
