@@ -15,6 +15,7 @@ server.use(helmet());
 server.use("/api/users", UserRouter)
 server.use("/api/auth", AuthRouter)
 
+
 server.get('/', (req, res) => {
     res.status(200).json({message: 'Api is up'})
 });
