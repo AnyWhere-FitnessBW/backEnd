@@ -13,7 +13,7 @@ module.exports = (req, res, next) => {
     if (token) {
       jwt.verify(token, secrets.jwtSecret, (err, decodedToken) => {
         if (err) {
-          res.status(401).json({ you: "you are not authorized!" });
+          res.status(401).json({ you: "Invalid Credentials" });
         } else {
           req.decodedJwt = decodedToken;
           next();
@@ -23,7 +23,7 @@ module.exports = (req, res, next) => {
       throw new Error('invalid auth data');
     }
   } catch (err) {
-    res.status(401).json({ error: err.message });
+    res.status(401).json({ error: "you must be logged in" });
   }
 
 };

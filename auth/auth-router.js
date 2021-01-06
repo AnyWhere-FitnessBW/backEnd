@@ -1,8 +1,10 @@
-const bcryptjs = require("bcryptjs");
-const jwt = require('jsonwebtoken');
-const secrets = require('../config/secrets.js');
 
 const router = require("express").Router();
+const bcryptjs = require("bcryptjs");
+const jwt = require('jsonwebtoken');
+const {jwtSecret} = require('../config/secrets.js');
+
+
 
 const Users = require("../users/user-model");
 const { isValid } = require("../users/users-service.js");
@@ -22,7 +24,7 @@ router.post("/register", async (req, res, next) => {
       const token = generateToken(user);
       res.status(201).json({ data: user, token });
     } else {
-      next({ apiCode: 400, apiMessage: 'username or password missing, or password not alphanumeric' });
+      next({ apiCode: 400, apiMessage: 'Error: missing entry' });
     }
   } catch (err) {
     console.log(err);
@@ -58,13 +60,11 @@ function generateToken(user) {
     username: user.username,
 
   };
-
-  
   const options = {
     expiresIn: "1d"
   };
 
-  const token = jwt.sign(payload, secrets.jwtSecret, options);
+  const token = jwt.sign(payload, jwtSecret, options);
 
   return token;
 
