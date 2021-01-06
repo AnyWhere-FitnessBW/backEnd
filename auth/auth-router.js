@@ -10,65 +10,70 @@ const Users = require("../users/user-model");
 const { isValid } = require("../users/users-service.js");
 
 
-router.post("/register", async (req, res, next) => {
-  const credentials = req.body;
+// router.post("/register", async (req, res, next) => {
+//   const credentials = req.body;
 
-  try {
-    if (isValid(credentials)) {
-      const rounds = process.env.BCRYPT_ROUNDS;
+//   try {
+//     if (isValid(credentials)) {
+//       const rounds = process.env.BCRYPT_ROUNDS;
 
-      const hash = bcryptjs.hashSync(credentials.password, rounds);
-      credentials.password = hash;
+//       const hash = bcryptjs.hashSync(credentials.password, rounds);
+//       credentials.password = hash;
 
-      const user = await Users.add(credentials);
-      const token = generateToken(user);
-      res.status(201).json({ data: user, token });
-    } else {
-      next({ apiCode: 400, apiMessage: 'Error: missing entry' });
-    }
-  } catch (err) {
-    console.log(err);
-    next({ apiCode: 500, apiMessage: 'error saving new user', ...err });
-  }
+//       const user = await Users.add(credentials);
+//       const token = generateToken(user);
+//       res.status(201).json({ data: user, token });
+//     } else {
+//       next({ apiCode: 400, apiMessage: 'Error: missing entry' });
+//     }
+//   } catch (err) {
+//     console.log(err);
+//     next({ apiCode: 500, apiMessage: 'error saving new user', ...err });
+//   }
 
+// });
+
+
+
+// router.post('/login', async (req, res) =>{
+//   const { username, password } = req.body;
+
+//   try{
+//       const [user] = await Users.findBy({username: username});
+//       if(user && bcryptjs.compareSync(password, user.password)) {
+//           const token = generateToken(user);
+//           res.status(200).json({message: 'Welcome, login success', token: token})
+//       } else { 
+//           res.status(401).json({message:'invalid username or password'})
+//       } 
+//   } catch (err) {
+//       res.status(500).json({error: "error here"})
+//   }
+// })
+
+
+
+// function generateToken(user) {
+
+//   const payload = {
+//     subject: user.id,
+//     username: user.username,
+
+//   };
+//   const options = {
+//     expiresIn: "1d"
+//   };
+
+//   const token = jwt.sign(payload, jwtSecret, options);
+
+//   return token;
+
+// }
+
+router.get('/', (req, res) => {
+  res.status(200).json({message: 'Api is up'})
 });
 
-
-
-router.post('/login', async (req, res) =>{
-  const { username, password } = req.body;
-
-  try{
-      const [user] = await Users.findBy({username: username});
-      if(user && bcryptjs.compareSync(password, user.password)) {
-          const token = generateToken(user);
-          res.status(200).json({message: 'Welcome, login success', token: token})
-      } else { 
-          res.status(401).json({message:'invalid username or password'})
-      } 
-  } catch (err) {
-      res.status(500).json({error: "error here"})
-  }
-})
-
-
-
-function generateToken(user) {
-
-  const payload = {
-    subject: user.id,
-    username: user.username,
-
-  };
-  const options = {
-    expiresIn: "1d"
-  };
-
-  const token = jwt.sign(payload, jwtSecret, options);
-
-  return token;
-
-}
 
 module.exports = router;
 
