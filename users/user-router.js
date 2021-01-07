@@ -3,7 +3,7 @@ const db = require('../data/dbConfig')
 
 const Users = require('./user-model')
 const restricted = require("../auth/restricted-middleware.js");
-const checkRole = require("../auth/check-role-middlware");
+// const checkRole = require("../auth/check-role-middlware");
 
 
 router.get("/", restricted, async (req, res, next) => {
