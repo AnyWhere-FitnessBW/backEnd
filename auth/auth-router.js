@@ -1,8 +1,10 @@
-const bcryptjs = require("bcryptjs");
-const jwt = require('jsonwebtoken');
-const secrets = require('../config/secrets.js');
 
 const router = require("express").Router();
+const bcryptjs = require("bcryptjs");
+const jwt = require('jsonwebtoken');
+const {jwtSecret} = require('../config/secrets.js');
+
+
 
 const Users = require("../users/user-model");
 const { isValid } = require("../users/users-service.js");
@@ -13,9 +15,6 @@ router.post("/register", async (req, res, next) => {
 
   try {
     if (isValid(credentials)) {
-      // const rounds = process.env.BCRYPT_ROUNDS ?
-      //   parseInt(process.env.BCRYPT_ROUNDS) : 8;
-
       const rounds = process.env.BCRYPT_ROUNDS;
 
       const hash = bcryptjs.hashSync(credentials.password, rounds);
@@ -25,7 +24,7 @@ router.post("/register", async (req, res, next) => {
       const token = generateToken(user);
       res.status(201).json({ data: user, token });
     } else {
-      next({ apiCode: 400, apiMessage: 'username or password missing, or password not alphanumeric' });
+      next({ apiCode: 400, apiMessage: 'Error: missing entry' });
     }
   } catch (err) {
     console.log(err);
@@ -34,27 +33,23 @@ router.post("/register", async (req, res, next) => {
 
 });
 
-router.post("/login", async (req, res, next) => {
+
+
+router.post('/login', async (req, res) =>{
   const { username, password } = req.body;
 
-  try {
-    if (!isValid(req.body)) {
-      next({ apiCode: 400, apiMessage: 'username or password missing, or password not alphanumeric' });
-    } else {
-      const [user] = await Users.findBy({ username: username });
-      if (user && bcryptjs.compareSync(password, user.password)) {
-        const token = generateToken(user);
-        res.status(200).json({ message: 'welcome to the api', token: token });
-      } else {
-        next({ apiCode: 401, apiMessage: 'invalid credentials' });
-      }
-    }
+  try{
+      const [user] = await Users.findBy({username: username});
+      if(user && bcryptjs.compareSync(password, user.password)) {
+          const token = generateToken(user);
+          res.status(200).json({message: 'Welcome, login success', token: token})
+      } else { 
+          res.status(401).json({message:'invalid username or password'})
+      } 
   } catch (err) {
-      res.status(501).json({message: "fail"})
-    next({ apiCode: 500, apiMessage: 'db error logging in', ...err });
+      res.status(500).json({error: "error here"})
   }
-
-});
+})
 
 
 
@@ -65,16 +60,26 @@ function generateToken(user) {
     username: user.username,
 
   };
-
-  
   const options = {
     expiresIn: "1d"
   };
 
-  const token = jwt.sign(payload, secrets.jwtSecret, options);
+  const token = jwt.sign(payload, jwtSecret, options);
 
   return token;
 
 }
 
 module.exports = router;
+
+
+
+
+
+
+
+//   "firstName": "james",
+//   "lastname": "hill",
+//  "username": "user21",
+//  "password": "yellowbuses",
+//  "email": "myemail@email.com"
